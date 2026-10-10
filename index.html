@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Navigation Robot | Obstacle Avoidance & Line Following</title>
+    <meta name="description" content="Autonomous Navigation Robot using Sensor Fusion: Dual IR line tracking, servo-actuated HC-SR04 ultrasonic obstacle avoidance, and Finite State Machine decision logic. Interactive 2D simulator and architecture demonstration.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- HEADER & NAVIGATION -->
+    <header id="site-header" class="site-header">
+        <div class="nav-container">
+            <a href="#hero" class="brand-logo" aria-label="Home">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                    <circle cx="12" cy="5" r="2"></circle>
+                    <path d="M12 7v4"></path>
+                    <line x1="8" y1="16" x2="8" y2="16.01"></line>
+                    <line x1="16" y1="16" x2="16.01"></line>
+                </svg>
+                <div class="brand-text">
+                    <span class="brand-title">AUTOBOT</span>
+                    <span class="brand-badge">SENSOR FUSION</span>
+                </div>
+            </a>
+
+            <nav id="main-nav" class="nav-menu" aria-label="Main Navigation">
+                <ul class="nav-links">
+                    <li><a href="#hero" class="nav-link active">Home</a></li>
+                    <li><a href="#overview" class="nav-link">Overview</a></li>
+                    <li><a href="#architecture" class="nav-link">Architecture</a></li>
+                    <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+                    <li><a href="#simulator" class="nav-link highlight-link">Sim 1: FSM Track</a></li>
+                    <li><a href="#fsm" class="nav-link">FSM Logic</a></li>
+                    <li><a href="#sensor-fusion" class="nav-link">Sensor Fusion</a></li>
+                    <li><a href="#arena-simulator" class="nav-link highlight-link-alt">Sim 2: Arena Sandbox</a></li>
+                    <li><a href="#hardware" class="nav-link">Hardware</a></li>
+                    <li><a href="#software" class="nav-link">Software</a></li>
+                    <li><a href="#applications" class="nav-link">Applications</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="#arena-simulator" class="btn btn-sm btn-accent" id="nav-sim-btn">Arena Sim 2.0</a>
+                <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section id="hero" class="hero-section">
+            <div class="hero-bg-grid"></div>
+            <div class="hero-glow"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="hero-tag">
+                        <span class="pulse-dot"></span>
+                        Autonomous Navigation System
+                    </div>
+                    <h1 class="hero-title">
+                        Autonomous Navigation <span class="gradient-text">Robot</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Obstacle Avoidance + Line Following Using Sensor Fusion
+                    </p>
+                    <p class="hero-description">
+                        An autonomous robotic system that follows a predefined path, detects obstacles in real time, selects a safe route, and returns to the original line.
+                    </p>
+                    <div class="hero-cta-group">
+                        <a href="#simulator" class="btn btn-primary" id="hero-sim-btn">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <span>Sim 1: FSM Track</span>
+                        </a>
+                        <a href="#arena-simulator" class="btn btn-accent-glow" id="hero-arena-btn">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                                <polyline points="2 17 12 22 22 17"></polyline>
+                                <polyline points="2 12 12 17 22 12"></polyline>
+                            </svg>
+                            <span>Sim 2: Arena Sandbox</span>
+                        </a>
+                        <a href="#overview" class="btn btn-secondary" id="hero-explore-btn">
+                            <span>Architecture</span>
+                            <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="hero-metrics">
+                        <div class="metric-item">
+                            <span class="metric-label">Tracking Mode</span>
+                            <span class="metric-val text-cyan">Dual IR Optical</span>
+                        </div>
+                        <div class="metric-divider"></div>
+                        <div class="metric-item">
+                            <span class="metric-label">Obstacle Sensing</span>
+                            <span class="metric-val text-emerald">HC-SR04 + Servo Pan</span>
+                        </div>
+                        <div class="metric-divider"></div>
+                        <div class="metric-item">
+                            <span class="metric-label">Control Logic</span>
+                            <span class="metric-val text-blue">Priority FSM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="robot-preview-card">
+                        <div class="preview-header">
+                            <div class="status-indicator">
+                                <span class="status-led led-green"></span>
+                                <span class="status-title">TELEMETRY PREVIEW</span>
+                            </div>
+                            <span class="preview-badge">ONLINE</span>
+                        </div>
+                        
+                        <div class="robot-canvas-box">
+                            <canvas id="hero-radar-canvas" width="380" height="280"></canvas>
+                            <div class="radar-crosshair"></div>
+                            <div class="radar-sweep-info">
+                                <span id="hero-sonar-dist">Distance: 42 cm</span>
+                                <span id="hero-servo-angle">Sonar Angle: 90°</span>
+                            </div>
+                        </div>
+
+                        <div class="preview-footer">
+                            <div class="sensor-pill-group">
+                                <div class="sensor-pill" id="hero-pill-ir-left">
+                                    <span class="pill-dot"></span> Left IR: ON LINE
+                                </div>
+                                <div class="sensor-pill" id="hero-pill-ir-right">
+                                    <span class="pill-dot"></span> Right IR: ON LINE
+                                </div>
+                                <div class="sensor-pill active" id="hero-pill-sonar">
+                                    <span class="pill-dot"></span> Sonar: SCANNING
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECT OVERVIEW -->
+        <section id="overview" class="section overview-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Core Objective</span>
+                    <h2 class="section-title">Project Overview</h2>
+                    <p class="section-subtitle">Bridging the critical gap between line-tracking precision and reactive spatial navigation</p>
+                </div>
+
+                <div class="overview-grid">
+                    <div class="overview-card problem-card">
+                        <div class="card-icon-wrap icon-danger">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">The Problem with Traditional Line Followers</h3>
+                        <p class="card-desc">
+                            Standard line-following robots rely exclusively on down-facing infrared (IR) sensors. While effective for strict track alignment, they operate blindly regarding ambient space:
+                        </p>
+                        <ul class="feature-bullets">
+                            <li><span class="bullet-cross">✕</span> Immediate head-on collisions with stationary or dynamic objects on the line.</li>
+                            <li><span class="bullet-cross">✕</span> Complete mission halt or mechanical stall when paths are obstructed.</li>
+                            <li><span class="bullet-cross">✕</span> Inability to inspect alternate lateral bypass trajectories.</li>
+                        </ul>
+                    </div>
+
+                    <div class="overview-card solution-card">
+                        <div class="card-icon-wrap icon-success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                <polyline points="9 12 11 14 15 10"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">The Sensor Fusion Solution</h3>
+                        <p class="card-desc">
+                            This project implements a multi-layer autonomous architecture combining real-time optical tracking, ultrasonic ranging, servo sweeping, and priority-driven state transitions:
+                        </p>
+                        <ul class="feature-bullets">
+                            <li><span class="bullet-check">✓</span> <strong>Line Detection:</strong> Continuous dual-IR tracking with PWM differential steering.</li>
+                            <li><span class="bullet-check">✓</span> <strong>Dynamic Sonar Scanning:</strong> 180° servo sweeps evaluate left vs. right clearance.</li>
+                            <li><span class="bullet-check">✓</span> <strong>Deterministic Bypass & Reacquisition:</strong> Executes safe bypass arc, hunts for the line, and seamlessly rejoins without human intervention.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM ARCHITECTURE -->
+        <section id="architecture" class="section architecture-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">System Design</span>
+                    <h2 class="section-title">System Architecture</h2>
+                    <p class="section-subtitle">Interactive signal flow and component hierarchy. Click any block to view its operational role.</p>
+                </div>
+
+                <div class="arch-interactive-container">
+                    <div class="arch-diagram" id="arch-diagram">
+                        <!-- Sensor Input Layer -->
+                        <div class="arch-layer">
+                            <span class="layer-label">INPUT SENSORS</span>
+                            <div class="arch-nodes-group">
+                                <button class="arch-node" data-node="ir-sensors" id="node-ir">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">Dual IR Sensors</span>
+                                        <span class="node-sub">Optical Line Tracking</span>
+                                    </div>
+                                    <span class="node-badge">Digital In</span>
+                                </button>
+
+                                <button class="arch-node" data-node="sonar-sensor" id="node-sonar">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2a8 8 0 0 1 8-8v2a6 6 0 0 0-6 6H2z"/><path d="M2 12h2a12 12 0 0 1 12-12v2a10 10 0 0 0-10 10H2z"/><circle cx="12" cy="12" r="2"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">HC-SR04 Sonar</span>
+                                        <span class="node-sub">Distance Measurement</span>
+                                    </div>
+                                    <span class="node-badge">Echo Timing</span>
+                                </button>
+
+                                <button class="arch-node" data-node="servo-motor" id="node-servo">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 2v6"/><circle cx="12" cy="14" r="3"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">SG90 Servo</span>
+                                        <span class="node-sub">180° Directional Pan</span>
+                                    </div>
+                                    <span class="node-badge">PWM Position</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="arch-arrow">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                        </div>
+
+                        <!-- Processing Layer -->
+                        <div class="arch-layer">
+                            <span class="layer-label">PROCESSING & LOGIC</span>
+                            <div class="arch-nodes-group vertical-group">
+                                <button class="arch-node" data-node="mcu" id="node-mcu">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">Microcontroller</span>
+                                        <span class="node-sub">Arduino / ESP32 MCU</span>
+                                    </div>
+                                    <span class="node-badge">Core Unit</span>
+                                </button>
+
+                                <button class="arch-node" data-node="sensor-fusion-engine" id="node-fusion">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">Sensor Fusion Engine</span>
+                                        <span class="node-sub">Spatial & Line State Matrix</span>
+                                    </div>
+                                    <span class="node-badge">Algorithm</span>
+                                </button>
+
+                                <button class="arch-node" data-node="fsm-engine" id="node-fsm">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">Finite State Machine</span>
+                                        <span class="node-sub">Priority State Arbitration</span>
+                                    </div>
+                                    <span class="node-badge">Decision</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="arch-arrow">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                        </div>
+
+                        <!-- Actuation Layer -->
+                        <div class="arch-layer">
+                            <span class="layer-label">ACTUATION & MOTORS</span>
+                            <div class="arch-nodes-group">
+                                <button class="arch-node" data-node="motor-driver" id="node-driver">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="18" y1="8" x2="18" y2="16"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">L298N Motor Driver</span>
+                                        <span class="node-sub">Dual H-Bridge Power</span>
+                                    </div>
+                                    <span class="node-badge">Power Control</span>
+                                </button>
+
+                                <button class="arch-node" data-node="dc-motors" id="node-motors">
+                                    <div class="node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
+                                    </div>
+                                    <div class="node-info">
+                                        <span class="node-title">Dual DC Geared Motors</span>
+                                        <span class="node-sub">Differential Drive Wheels</span>
+                                    </div>
+                                    <span class="node-badge">Kinematics</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Component Details Drawer / Box -->
+                    <div class="arch-detail-panel" id="arch-detail-panel">
+                        <div class="panel-header">
+                            <div class="panel-title-wrap">
+                                <span class="badge badge-cyan" id="arch-panel-badge">COMPONENT SPECIFICATION</span>
+                                <h4 id="arch-panel-title">Click any component to inspect details</h4>
+                            </div>
+                            <span class="panel-hint">Interactive Signal Inspector</span>
+                        </div>
+                        <div class="panel-body" id="arch-panel-body">
+                            <p class="panel-description">
+                                The system connects 2 digital optical sensors and 1 ultrasonic transducer via an embedded microcontroller. When clear, line tracking controls differential motor PWM. When an obstacle threshold (< 20 cm) is breached, the FSM preempts normal tracking, scans lateral quadrants using the servo, and guides the robot through a deterministic avoidance maneuver.
+                            </p>
+                            <div class="panel-specs-grid" id="arch-panel-specs">
+                                <div class="spec-row">
+                                    <span class="spec-k">Interface Type:</span>
+                                    <span class="spec-v">GPIO Digital / Analog PWM</span>
+                                </div>
+                                <div class="spec-row">
+                                    <span class="spec-k">Response Latency:</span>
+                                    <span class="spec-v">< 15 ms cycle time</span>
+                                </div>
+                                <div class="spec-row">
+                                    <span class="spec-k">Safety Arbitration:</span>
+                                    <span class="spec-v">Obstacle Interrupt Overrides Line Tracking</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS (6 STEPS) -->
+        <section id="how-it-works" class="section how-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Step-by-Step Workflow</span>
+                    <h2 class="section-title">How It Works</h2>
+                    <p class="section-subtitle">A deterministic 6-phase sequence from tracking to avoidance and line reacquisition</p>
+                </div>
+
+                <div class="steps-interactive-layout">
+                    <!-- Step Selector Buttons -->
+                    <div class="step-nav-bar" role="tablist">
+                        <button class="step-tab active" data-step="1" role="tab" aria-selected="true">
+                            <span class="step-num">01</span>
+                            <span class="step-name">Line Detection</span>
+                        </button>
+                        <button class="step-tab" data-step="2" role="tab" aria-selected="false">
+                            <span class="step-num">02</span>
+                            <span class="step-name">Line Following</span>
+                        </button>
+                        <button class="step-tab" data-step="3" role="tab" aria-selected="false">
+                            <span class="step-num">03</span>
+                            <span class="step-name">Obstacle Detection</span>
+                        </button>
+                        <button class="step-tab" data-step="4" role="tab" aria-selected="false">
+                            <span class="step-num">04</span>
+                            <span class="step-name">Stop & Scan</span>
+                        </button>
+                        <button class="step-tab" data-step="5" role="tab" aria-selected="false">
+                            <span class="step-num">05</span>
+                            <span class="step-name">Decision & Avoid</span>
+                        </button>
+                        <button class="step-tab" data-step="6" role="tab" aria-selected="false">
+                            <span class="step-num">06</span>
+                            <span class="step-name">Reacquire Line</span>
+                        </button>
+                    </div>
+
+                    <!-- Step Content Card -->
+                    <div class="step-display-card" id="step-card">
+                        <div class="step-card-visual" id="step-visual">
+                            <div class="step-sim-canvas-wrap">
+                                <canvas id="step-canvas" width="440" height="260"></canvas>
+                            </div>
+                        </div>
+                        <div class="step-card-info">
+                            <div class="step-badge" id="step-card-badge">STEP 1 OF 6</div>
+                            <h3 class="step-title" id="step-card-title">Line Detection</h3>
+                            <p class="step-desc" id="step-card-desc">
+                                Dual downward-facing infrared sensors continuously measure surface reflectance. The black line absorbs IR light while the white surface reflects it, producing high/low digital logic signals that define the robot's lateral alignment relative to the center track.
+                            </p>
+                            <div class="step-logic-box">
+                                <span class="logic-label">Controller State Logic:</span>
+                                <code id="step-card-logic">Left IR: HIGH | Right IR: HIGH → Track Centered</code>
+                            </div>
+                            <div class="step-controls">
+                                <button class="btn btn-sm btn-secondary" id="step-prev-btn" disabled>← Previous Step</button>
+                                <button class="btn btn-sm btn-primary" id="step-next-btn">Next Step →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE ROBOT SIMULATOR (CORE FEATURE) -->
+        <section id="simulator" class="section simulator-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="simulator-tag">
+                        <span class="live-pulse"></span>
+                        PRIMARY SYSTEM DEMONSTRATION
+                    </div>
+                    <h2 class="section-title">Interactive 2D Robot Simulator</h2>
+                    <p class="section-subtitle">Real-time kinematics, sonar raycasting, servo pan scanning, and closed-loop line reacquisition</p>
+                </div>
+
+                <div class="sim-main-grid">
+                    <!-- Simulator Canvas Box -->
+                    <div class="sim-viewport-card">
+                        <div class="viewport-toolbar">
+                            <div class="toolbar-left">
+                                <span class="tool-title">Track Environment 2D</span>
+                                <span class="tool-status" id="sim-run-state">IDLE</span>
+                            </div>
+                            <div class="toolbar-right">
+                                <label for="obstacle-pos-select" class="tool-label">Obstacle Scenario:</label>
+                                <select id="obstacle-pos-select" class="form-select">
+                                    <option value="center">Center Obstacle (Standard)</option>
+                                    <option value="left-bias">Left-Biased (Force Right Avoid)</option>
+                                    <option value="right-bias">Right-Biased (Force Left Avoid)</option>
+                                    <option value="clear">Clear Path (Pure Line Follow)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="canvas-container">
+                            <canvas id="sim-canvas" width="800" height="480"></canvas>
+                            
+                            <!-- Overlay Banner for state changes -->
+                            <div class="canvas-overlay" id="sim-canvas-overlay">
+                                <span class="overlay-text" id="sim-overlay-msg">READY - PRESS START</span>
+                            </div>
+                        </div>
+
+                        <div class="sim-controls-bar">
+                            <div class="btn-group">
+                                <button id="sim-btn-start" class="btn btn-start">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <span>START SIMULATION</span>
+                                </button>
+                                <button id="sim-btn-pause" class="btn btn-pause" disabled>
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                                    <span>PAUSE</span>
+                                </button>
+                                <button id="sim-btn-reset" class="btn btn-reset">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                                    <span>RESET</span>
+                                </button>
+                            </div>
+
+                            <div class="sim-speed-control">
+                                <span class="speed-label">Speed:</span>
+                                <div class="speed-buttons">
+                                    <button class="speed-btn active" data-speed="1">1.0x</button>
+                                    <button class="speed-btn" data-speed="1.5">1.5x</button>
+                                    <button class="speed-btn" data-speed="2.5">2.5x</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry & System Status Panel -->
+                    <div class="sim-telemetry-card">
+                        <div class="telemetry-header">
+                            <div class="card-icon-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                <h3>SYSTEM STATUS</h3>
+                            </div>
+                            <span class="badge badge-pulse" id="telemetry-mode-badge">STANDBY</span>
+                        </div>
+
+                        <!-- Live Terminal / Telemetry Feed -->
+                        <div class="telemetry-grid">
+                            <div class="telemetry-metric-box">
+                                <span class="t-label">CONTROL MODE</span>
+                                <span class="t-value highlight" id="t-mode">LINE FOLLOW</span>
+                            </div>
+
+                            <div class="telemetry-metric-box">
+                                <span class="t-label">ULTRASONIC DISTANCE</span>
+                                <div class="t-value-unit">
+                                    <span class="t-value" id="t-distance">45</span>
+                                    <span class="t-unit">cm</span>
+                                </div>
+                                <div class="dist-bar-track">
+                                    <div class="dist-bar-fill" id="t-dist-bar" style="width: 90%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="telemetry-metric-box">
+                                <span class="t-label">SERVO PAN ANGLE</span>
+                                <div class="servo-gauge-wrap">
+                                    <div class="servo-dial">
+                                        <div class="servo-needle" id="t-servo-needle" style="transform: rotate(0deg);"></div>
+                                    </div>
+                                    <span class="t-value" id="t-servo-angle">90°</span>
+                                    <span class="t-sub" id="t-servo-dir">AHEAD</span>
+                                </div>
+                            </div>
+
+                            <div class="telemetry-metric-box">
+                                <span class="t-label">IR SENSOR READINGS</span>
+                                <div class="ir-status-row">
+                                    <div class="ir-indicator" id="t-ir-left">
+                                        <span class="ir-dot"></span>
+                                        <div class="ir-text">
+                                            <span class="ir-title">IR LEFT</span>
+                                            <span class="ir-val" id="t-ir-left-val">ACTIVE</span>
+                                        </div>
+                                    </div>
+                                    <div class="ir-indicator" id="t-ir-right">
+                                        <span class="ir-dot"></span>
+                                        <div class="ir-text">
+                                            <span class="ir-title">IR RIGHT</span>
+                                            <span class="ir-val" id="t-ir-right-val">ACTIVE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="telemetry-metric-box span-2">
+                                <span class="t-label">MOTOR ACTUATION (PWM)</span>
+                                <div class="motor-pwm-row">
+                                    <div class="pwm-bar-item">
+                                        <div class="pwm-info">
+                                            <span>M_LEFT (PWM)</span>
+                                            <span id="t-pwm-left">180 / 255</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="t-pwm-left-bar" style="width: 70%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="pwm-bar-item">
+                                        <div class="pwm-info">
+                                            <span>M_RIGHT (PWM)</span>
+                                            <span id="t-pwm-right">180 / 255</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="t-pwm-right-bar" style="width: 70%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="telemetry-metric-box span-2 decision-box">
+                                <span class="t-label">ARBITRATED DECISION</span>
+                                <div class="decision-display">
+                                    <span class="decision-val" id="t-decision">FOLLOW LINE</span>
+                                    <span class="decision-reason" id="t-decision-reason">Path clear & sensors aligned with line</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini log feed -->
+                        <div class="telemetry-log">
+                            <span class="log-title">EVENT LOG</span>
+                            <div class="log-entries" id="sim-event-log">
+                                <div class="log-line text-cyan">[INIT] Autonomous Navigation Core initialized. Ready.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINITE STATE MACHINE (FSM) -->
+        <section id="fsm" class="section fsm-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Deterministic Control Engine</span>
+                    <h2 class="section-title">Finite State Machine (FSM)</h2>
+                    <p class="section-subtitle">Live state transitions synchronized with the simulator execution. Obstacle handling maintains strict interrupt priority over line following.</p>
+                </div>
+
+                <div class="fsm-wrapper">
+                    <div class="fsm-graph-card">
+                        <div class="fsm-nodes-flow" id="fsm-nodes-container">
+                            <!-- State 1 -->
+                            <div class="fsm-state-node active" id="fsm-node-line-follow" data-state="LINE_FOLLOW">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 0</span>
+                                    <h4>LINE FOLLOW</h4>
+                                    <p>Dual IR sensor closed-loop tracking along track line</p>
+                                </div>
+                                <div class="node-transition-tag">Obstacle < 20cm</div>
+                            </div>
+
+                            <div class="fsm-connector">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                            </div>
+
+                            <!-- State 2 -->
+                            <div class="fsm-state-node" id="fsm-node-obstacle-detected" data-state="OBSTACLE_DETECTED">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 1</span>
+                                    <h4>OBSTACLE DETECTED</h4>
+                                    <p>Sonar echo trigger: distance under safety threshold</p>
+                                </div>
+                                <div class="node-transition-tag">Halt PWM</div>
+                            </div>
+
+                            <div class="fsm-connector">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                            </div>
+
+                            <!-- State 3 -->
+                            <div class="fsm-state-node" id="fsm-node-stop-scan" data-state="STOP_SCAN">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 2</span>
+                                    <h4>STOP & SCAN</h4>
+                                    <p>Zero motor velocity; servo sweeps 45° left & 135° right</p>
+                                </div>
+                                <div class="node-transition-tag">Compare Clearance</div>
+                            </div>
+
+                            <div class="fsm-connector">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                            </div>
+
+                            <!-- State 4 -->
+                            <div class="fsm-state-node" id="fsm-node-avoid" data-state="AVOID">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 3</span>
+                                    <h4>AVOID (BYPASS ARC)</h4>
+                                    <p>Differential steering bypass maneuver around obstacle</p>
+                                </div>
+                                <div class="node-transition-tag">Obstacle Cleared</div>
+                            </div>
+
+                            <div class="fsm-connector">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                            </div>
+
+                            <!-- State 5 -->
+                            <div class="fsm-state-node" id="fsm-node-search-line" data-state="SEARCH_LINE">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 4</span>
+                                    <h4>SEARCH LINE</h4>
+                                    <p>Angled inward heading to detect reflectance change</p>
+                                </div>
+                                <div class="node-transition-tag">IR Hit = HIGH</div>
+                            </div>
+
+                            <div class="fsm-connector">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                            </div>
+
+                            <!-- State 6 -->
+                            <div class="fsm-state-node" id="fsm-node-resume" data-state="RESUME">
+                                <div class="node-state-indicator"></div>
+                                <div class="node-content">
+                                    <span class="state-code">STATE 5</span>
+                                    <h4>RESUME TRACKING</h4>
+                                    <p>Re-align wheels to center position and loop to State 0</p>
+                                </div>
+                                <div class="node-transition-tag">Aligned → Loop</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fsm-priority-explanation">
+                        <div class="priority-badge">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"/></svg>
+                            <span>PRIORITY ARBITRATION RULE</span>
+                        </div>
+                        <p>
+                            <strong>Obstacle Avoidance has strict preemptive priority over Line Following.</strong> In embedded C/C++, if ultrasonic distance is below safety limit (e.g. <code>dist &lt; OBSTACLE_LIMIT_CM</code>), the interrupt evaluation immediately suspends line PID/PWM updates, transitions the system into <code>STOP_SCAN</code>, and prevents collision regardless of line sensor status.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SENSOR FUSION SECTION -->
+        <section id="sensor-fusion" class="section fusion-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Multi-Sensor Logic</span>
+                    <h2 class="section-title">Sensor Fusion & Decision Logic</h2>
+                    <p class="section-subtitle">How optical tracking, ultrasonic ranging, and angular scanning combine into deterministic motion commands without complex ML dependencies</p>
+                </div>
+
+                <div class="fusion-grid">
+                    <div class="fusion-matrix-card">
+                        <h3>Sensor Truth Table & Decision Matrix</h3>
+                        <p class="matrix-sub">Calculated every 15 ms in microcontroller loop</p>
+                        
+                        <div class="table-responsive">
+                            <table class="fusion-table">
+                                <thead>
+                                    <tr>
+                                        <th>Left IR</th>
+                                        <th>Right IR</th>
+                                        <th>Sonar (cm)</th>
+                                        <th>Servo Angle</th>
+                                        <th>FSM State</th>
+                                        <th>Motor Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="row-active-preview">
+                                        <td><span class="tag tag-on">HIGH</span></td>
+                                        <td><span class="tag tag-on">HIGH</span></td>
+                                        <td>&gt; 25 cm</td>
+                                        <td>90° (Center)</td>
+                                        <td><span class="tag tag-state">LINE_FOLLOW</span></td>
+                                        <td>Forward (Equal PWM)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tag tag-on">HIGH</span></td>
+                                        <td><span class="tag tag-off">LOW</span></td>
+                                        <td>&gt; 25 cm</td>
+                                        <td>90° (Center)</td>
+                                        <td><span class="tag tag-state">LINE_FOLLOW</span></td>
+                                        <td>Steer Left (PWM Left &lt; Right)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tag tag-off">LOW</span></td>
+                                        <td><span class="tag tag-on">HIGH</span></td>
+                                        <td>&gt; 25 cm</td>
+                                        <td>90° (Center)</td>
+                                        <td><span class="tag tag-state">LINE_FOLLOW</span></td>
+                                        <td>Steer Right (PWM Right &lt; Left)</td>
+                                    </tr>
+                                    <tr class="row-highlight-danger">
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td>&le; 20 cm</td>
+                                        <td>90° (Center)</td>
+                                        <td><span class="tag tag-danger">OBSTACLE_STOP</span></td>
+                                        <td>Full Stop (PWM = 0)</td>
+                                    </tr>
+                                    <tr class="row-highlight-warn">
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td>Left: 40 | Right: 12</td>
+                                        <td>Sweep 45°/135°</td>
+                                        <td><span class="tag tag-warn">AVOID_LEFT</span></td>
+                                        <td>Pivot Left Arc Bypass</td>
+                                    </tr>
+                                    <tr class="row-highlight-warn">
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td><span class="tag tag-any">ANY</span></td>
+                                        <td>Left: 10 | Right: 45</td>
+                                        <td>Sweep 45°/135°</td>
+                                        <td><span class="tag tag-warn">AVOID_RIGHT</span></td>
+                                        <td>Pivot Right Arc Bypass</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tag tag-off">LOW</span></td>
+                                        <td><span class="tag tag-off">LOW</span></td>
+                                        <td>&gt; 30 cm</td>
+                                        <td>90° (Center)</td>
+                                        <td><span class="tag tag-state">SEARCH_LINE</span></td>
+                                        <td>Inward Curve until IR Trigger</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="fusion-visual-card">
+                        <h3>Interactive Sensor Arbitrator</h3>
+                        <p>Simulate sensor inputs to test what decision the fusion controller outputs:</p>
+                        
+                        <div class="fusion-interactive-controls">
+                            <div class="control-group">
+                                <label>Ultrasonic Distance: <span id="fusion-dist-val" class="text-cyan">35 cm</span></label>
+                                <input type="range" id="fusion-dist-slider" min="5" max="80" value="35" class="range-slider">
+                            </div>
+
+                            <div class="control-group-row">
+                                <div class="toggle-wrap">
+                                    <span>Left IR (Line):</span>
+                                    <button class="toggle-btn active" id="fusion-ir-left-btn">ON LINE</button>
+                                </div>
+                                <div class="toggle-wrap">
+                                    <span>Right IR (Line):</span>
+                                    <button class="toggle-btn active" id="fusion-ir-right-btn">ON LINE</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fusion-output-box">
+                            <span class="out-label">ARBITRATED CONTROLLER OUTPUT</span>
+                            <h4 class="out-decision" id="fusion-out-decision">LINE FOLLOW (FORWARD)</h4>
+                            <p class="out-desc" id="fusion-out-desc">Path ahead is unobstructed. Both IR sensors detect track. Symmetric PWM applied to Left & Right DC motors.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADVANCED ROBOTICS SANDBOX: ARENA & DYNAMIC OBSTACLE SIMULATOR -->
+        <section id="arena-simulator" class="section arena-simulator-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="simulator-tag arena-tag">
+                        <span class="live-pulse"></span>
+                        SIMULATION 2.0 &middot; MULTI-AXIS ROBOTICS SANDBOX
+                    </div>
+                    <h2 class="section-title">Autonomous Arena & Dynamic Obstacle Simulator</h2>
+                    <p class="section-subtitle">
+                        Multi-track closed circuits, moving dynamic obstacles, freehand custom trajectory drawing, manual RC teleoperation, and real-time PID tuning oscilloscope.
+                    </p>
+                </div>
+
+                <!-- Arena Master Container -->
+                <div class="arena-sim-wrapper">
+                    <!-- Top Control & Preset Toolbar -->
+                    <div class="arena-toolbar">
+                        <div class="arena-toolbar-group">
+                            <label class="arena-bar-label" for="arena-track-select">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bar-icon"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <span>Track Circuit:</span>
+                            </label>
+                            <select id="arena-track-select" class="form-select arena-select">
+                                <option value="warehouse">Warehouse Logistics Hub (Looped)</option>
+                                <option value="figure8">Figure-8 Lemniscate Circuit</option>
+                                <option value="slalom">Slalom & Hairpin Challenge</option>
+                                <option value="custom">✏️ Custom Draw Path (Paint Mode)</option>
+                            </select>
+                        </div>
+
+                        <div class="arena-toolbar-group arena-mode-toggle-group">
+                            <span class="arena-bar-label">Control Mode:</span>
+                            <div class="btn-toggle-group">
+                                <button id="arena-mode-auto" class="toggle-mode-btn active" data-mode="auto">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    <span>Auto (FSM + PID)</span>
+                                </button>
+                                <button id="arena-mode-manual" class="toggle-mode-btn" data-mode="manual">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <span>Manual RC (Tele-Op)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="arena-toolbar-group arena-obstacle-actions">
+                            <span class="arena-bar-label">Obstacle Tools:</span>
+                            <div class="btn-group-sm">
+                                <button id="arena-add-static-btn" class="btn-subtle" title="Add Static Obstacle Barrel">
+                                    <span>+ Static</span>
+                                </button>
+                                <button id="arena-add-moving-btn" class="btn-subtle" title="Add Dynamic Moving Obstacle">
+                                    <span>+ Moving</span>
+                                </button>
+                                <button id="arena-clear-obs-btn" class="btn-subtle btn-subtle-danger" title="Clear Dynamic Obstacles">
+                                    <span>Clear Extra</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Draw Path Action Bar (Shown when Custom Draw is active) -->
+                    <div id="arena-draw-bar" class="arena-draw-bar" style="display: none;">
+                        <div class="draw-tip">
+                            <span class="tip-icon">✏️</span>
+                            <span><strong>Draw Mode:</strong> Click & drag on the arena canvas below to sketch your custom black navigation track!</span>
+                        </div>
+                        <div class="draw-actions">
+                            <button id="arena-smooth-draw-btn" class="btn btn-xs btn-secondary">Smooth Track</button>
+                            <button id="arena-clear-draw-btn" class="btn btn-xs btn-reset">Clear Path</button>
+                            <button id="arena-apply-draw-btn" class="btn btn-xs btn-primary">Deploy Robot</button>
+                        </div>
+                    </div>
+
+                    <!-- Main Simulation Grid -->
+                    <div class="arena-grid">
+                        <!-- Left: Simulation Canvas Box -->
+                        <div class="arena-viewport-box">
+                            <div class="arena-canvas-wrap">
+                                <canvas id="arena-canvas" width="860" height="520"></canvas>
+                                
+                                <!-- Canvas Interactive Dragging Hint -->
+                                <div class="arena-hint-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                    <span>Drag any obstacle to test live evasion</span>
+                                </div>
+
+                                <!-- Overlay Banner -->
+                                <div class="canvas-overlay" id="arena-canvas-overlay">
+                                    <span class="overlay-text" id="arena-overlay-msg">ARENA READY - PRESS START</span>
+                                </div>
+                            </div>
+
+                            <!-- Execution Controls & Options -->
+                            <div class="arena-bottom-controls">
+                                <div class="btn-group">
+                                    <button id="arena-btn-start" class="btn btn-start">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        <span>START ARENA</span>
+                                    </button>
+                                    <button id="arena-btn-pause" class="btn btn-pause" disabled>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                                        <span>PAUSE</span>
+                                    </button>
+                                    <button id="arena-btn-reset" class="btn btn-reset">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                                        <span>RESET</span>
+                                    </button>
+                                </div>
+
+                                <!-- Sensor Beam Mode Selector -->
+                                <div class="arena-sensor-selector">
+                                    <span class="arena-ctrl-label">Sonar Mode:</span>
+                                    <div class="beam-toggle-group">
+                                        <button class="beam-btn" data-beam="1">1-Beam Servo</button>
+                                        <button class="beam-btn active" data-beam="3">3-Beam Fan</button>
+                                        <button class="beam-btn" data-beam="5">5-Beam LiDAR</button>
+                                    </div>
+                                </div>
+
+                                <!-- Visual Overlay Toggles -->
+                                <div class="arena-layer-toggles">
+                                    <label class="layer-chk-label">
+                                        <input type="checkbox" id="arena-chk-trails" checked>
+                                        <span>Trails</span>
+                                    </label>
+                                    <label class="layer-chk-label">
+                                        <input type="checkbox" id="arena-chk-sonar" checked>
+                                        <span>Sonar Fan</span>
+                                    </label>
+                                    <label class="layer-chk-label">
+                                        <input type="checkbox" id="arena-chk-grid" checked>
+                                        <span>Arena Grid</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Telemetry, PID Tuner & Manual Controls -->
+                        <div class="arena-telemetry-col">
+                            <!-- Telemetry HUD Card -->
+                            <div class="arena-card arena-telemetry-card">
+                                <div class="arena-card-header">
+                                    <div class="arena-title-wrap">
+                                        <span class="live-dot"></span>
+                                        <h4>ARENA TELEMETRY HUD</h4>
+                                    </div>
+                                    <span class="badge badge-pulse" id="arena-fsm-badge">LINE_FOLLOW</span>
+                                </div>
+
+                                <div class="arena-stats-grid">
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">VELOCITY</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val" id="arena-stat-speed">0.0</span>
+                                            <span class="stat-unit">cm/s</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">CROSS-TRACK ERR</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val highlight" id="arena-stat-cte">0.0</span>
+                                            <span class="stat-unit">mm</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">NEAREST OBSTACLE</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val text-cyan" id="arena-stat-dist">--</span>
+                                            <span class="stat-unit">cm</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">HEADING / STEER</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val" id="arena-stat-steer">0°</span>
+                                            <span class="stat-unit">deg</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">LAPS / WAYPOINTS</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val text-emerald" id="arena-stat-laps">0</span>
+                                            <span class="stat-unit">laps</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="arena-stat-box">
+                                        <span class="stat-label">OBSTACLES AVOIDED</span>
+                                        <div class="stat-val-group">
+                                            <span class="stat-val text-blue" id="arena-stat-avoided">0</span>
+                                            <span class="stat-unit">hits: 0</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Optical Sensor Bar -->
+                                <div class="arena-ir-array-box">
+                                    <span class="sub-label">OPTICAL TRACK SENSORS (3-CHANNEL)</span>
+                                    <div class="ir-three-row">
+                                        <div class="ir-ch" id="arena-ir-l">
+                                            <span class="ir-ch-dot"></span>
+                                            <span>LEFT</span>
+                                        </div>
+                                        <div class="ir-ch active" id="arena-ir-c">
+                                            <span class="ir-ch-dot"></span>
+                                            <span>CENTER</span>
+                                        </div>
+                                        <div class="ir-ch" id="arena-ir-r">
+                                            <span class="ir-ch-dot"></span>
+                                            <span>RIGHT</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live PID Tuning & Cross-Track Error Oscilloscope -->
+                            <div class="arena-card arena-pid-card">
+                                <div class="arena-card-header">
+                                    <div class="arena-title-wrap">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bar-icon"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                        <h4>PID CONTROLLER & CTE SCOPE</h4>
+                                    </div>
+                                    <button id="arena-pid-reset-btn" class="btn-link-xs">Reset PID</button>
+                                </div>
+
+                                <!-- Oscilloscope Canvas -->
+                                <div class="pid-scope-container">
+                                    <canvas id="arena-pid-scope" width="360" height="95"></canvas>
+                                    <div class="scope-legend">
+                                        <span class="scope-tag"><span class="legend-dot green"></span> CTE Error (mm)</span>
+                                        <span class="scope-rms" id="arena-scope-rms">RMS: 0.8 mm</span>
+                                    </div>
+                                </div>
+
+                                <!-- PID Sliders -->
+                                <div class="pid-sliders-grid">
+                                    <div class="pid-slider-item">
+                                        <div class="slider-header">
+                                            <span class="p-term">Kp (Proportional):</span>
+                                            <span class="p-val" id="val-kp">1.80</span>
+                                        </div>
+                                        <input type="range" id="slider-kp" min="0.1" max="5.0" step="0.05" value="1.80" class="range-slider">
+                                    </div>
+
+                                    <div class="pid-slider-item">
+                                        <div class="slider-header">
+                                            <span class="p-term">Ki (Integral):</span>
+                                            <span class="p-val" id="val-ki">0.05</span>
+                                        </div>
+                                        <input type="range" id="slider-ki" min="0.0" max="0.5" step="0.01" value="0.05" class="range-slider">
+                                    </div>
+
+                                    <div class="pid-slider-item">
+                                        <div class="slider-header">
+                                            <span class="p-term">Kd (Derivative):</span>
+                                            <span class="p-val" id="val-kd">0.90</span>
+                                        </div>
+                                        <input type="range" id="slider-kd" min="0.0" max="3.0" step="0.05" value="0.90" class="range-slider">
+                                    </div>
+
+                                    <div class="pid-slider-item">
+                                        <div class="slider-header">
+                                            <span class="p-term">Max Speed (PWM):</span>
+                                            <span class="p-val" id="val-speed">210</span>
+                                        </div>
+                                        <input type="range" id="slider-speed" min="80" max="255" step="5" value="210" class="range-slider">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Manual RC Tele-Op / Virtual D-Pad (Interactive in Manual Mode) -->
+                            <div class="arena-card arena-rc-card" id="arena-rc-panel">
+                                <div class="arena-card-header">
+                                    <div class="arena-title-wrap">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bar-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        <h4>MANUAL TELEOPERATION (RC)</h4>
+                                    </div>
+                                    <label class="aeb-toggle-wrap" title="Autonomous Emergency Braking prevents manual crashes">
+                                        <input type="checkbox" id="arena-rc-aeb" checked>
+                                        <span class="aeb-text">AEB Active</span>
+                                    </label>
+                                </div>
+
+                                <div class="rc-control-layout">
+                                    <!-- Virtual D-Pad -->
+                                    <div class="virtual-dpad">
+                                        <button class="dpad-btn dpad-up" id="dpad-fwd" title="Drive Forward (W / Up)">
+                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+                                        </button>
+                                        <div class="dpad-mid-row">
+                                            <button class="dpad-btn dpad-left" id="dpad-left" title="Steer Left (A / Left)">
+                                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l8-8v6h8v4h-8v6z"/></svg>
+                                            </button>
+                                            <button class="dpad-btn dpad-center" id="dpad-stop" title="Brake / Halt (Space)">
+                                                <span class="brake-dot"></span>
+                                            </button>
+                                            <button class="dpad-btn dpad-right" id="dpad-right" title="Steer Right (D / Right)">
+                                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 12l-8-8v6H4v4h8v6z"/></svg>
+                                            </button>
+                                        </div>
+                                        <button class="dpad-btn dpad-down" id="dpad-rev" title="Reverse (S / Down)">
+                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l8-8h-6V4h-4v8H4z"/></svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="rc-info-box">
+                                        <div class="key-legend">
+                                            <span class="key-badge">W</span>
+                                            <span class="key-badge">A</span>
+                                            <span class="key-badge">S</span>
+                                            <span class="key-badge">D</span>
+                                            <span>or Keyboard Arrows</span>
+                                        </div>
+                                        <p class="rc-note">
+                                            Switch to <strong>Manual RC</strong> mode above to control with keyboard or on-screen buttons. Sonar <strong>AEB</strong> automatically overrides throttle if an obstacle is within braking distance.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Arena Navigation Log Feed -->
+                            <div class="arena-card arena-log-card">
+                                <div class="arena-card-header">
+                                    <span class="log-title">ARENA TELEMETRY STREAM</span>
+                                    <button id="arena-log-clear" class="btn-link-xs">Clear Log</button>
+                                </div>
+                                <div class="log-entries arena-log-entries" id="arena-event-log">
+                                    <div class="log-line text-cyan">[INIT] Arena 2.0 Physics & Sonar Raycaster loaded.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HARDWARE COMPONENTS -->
+        <section id="hardware" class="section hardware-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Physical Architecture</span>
+                    <h2 class="section-title">Hardware Bill of Materials</h2>
+                    <p class="section-subtitle">Robotics components configured for low power consumption, high reliability, and rapid response times</p>
+                </div>
+
+                <div class="hardware-grid">
+                    <!-- Card 1 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+                        </div>
+                        <h4 class="hw-title">Arduino Uno / ESP32</h4>
+                        <span class="hw-type">Microcontroller Unit</span>
+                        <p class="hw-desc">Executes main control loop at 16MHz / 240MHz. Handles GPIO interrupts, hardware PWM timers for motor speed, and servo pulse generation.</p>
+                        <div class="hw-specs">
+                            <span>5V / 3.3V Logic</span>
+                            <span>Hardware Timers</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+                        </div>
+                        <h4 class="hw-title">TCRT5000 IR Sensor Array</h4>
+                        <span class="hw-type">Line Tracking Module</span>
+                        <p class="hw-desc">Dual optical reflective sensors with LM393 comparators. Calibrated with onboard potentiometers to distinguish black track tape from floor.</p>
+                        <div class="hw-specs">
+                            <span>10mm - 25mm Focal Range</span>
+                            <span>Digital TTL Output</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2a8 8 0 0 1 8-8v2a6 6 0 0 0-6 6H2z"/><circle cx="12" cy="12" r="2"/></svg>
+                        </div>
+                        <h4 class="hw-title">HC-SR04 Ultrasonic Sensor</h4>
+                        <span class="hw-type">Range Transducer</span>
+                        <p class="hw-desc">Emits 40kHz sonic bursts and calculates time-of-flight echo reflection. Provides non-contact obstacle distance from 2cm to 400cm with 3mm precision.</p>
+                        <div class="hw-specs">
+                            <span>2cm - 400cm Range</span>
+                            <span>15° Beam Angle</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 2v6"/><circle cx="12" cy="14" r="3"/></svg>
+                        </div>
+                        <h4 class="hw-title">SG90 Micro Servo Motor</h4>
+                        <span class="hw-type">Pan Actuator</span>
+                        <p class="hw-desc">Rotates HC-SR04 ultrasonic sensor through 0° to 180° for directional scanning. Positions sonar at 45° (left), 90° (center), and 135° (right).</p>
+                        <div class="hw-specs">
+                            <span>180° Rotation Span</span>
+                            <span>1.8 kg/cm Torque</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="18" y1="8" x2="18" y2="16"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+                        </div>
+                        <h4 class="hw-title">L298N Dual H-Bridge Driver</h4>
+                        <span class="hw-type">Motor Power Controller</span>
+                        <p class="hw-desc">High-power dual full-bridge driver. Accepts TTL logic from Arduino and drives 2 DC motors with bidirectional direction and PWM speed control.</p>
+                        <div class="hw-specs">
+                            <span>Up to 2A Peak per Channel</span>
+                            <span>5V - 35V Operating Range</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
+                        </div>
+                        <h4 class="hw-title">TT Geared DC Motors (x2)</h4>
+                        <span class="hw-type">Differential Drive</span>
+                        <p class="hw-desc">1:48 gear ratio yellow DC gearbox motors providing high starting torque and stable velocity for smooth differential steering maneuvers.</p>
+                        <div class="hw-specs">
+                            <span>1:48 Gear Reduction</span>
+                            <span>~200 RPM @ 6V</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 7 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><circle cx="16" cy="8" r="2"/><circle cx="12" cy="16" r="3"/></svg>
+                        </div>
+                        <h4 class="hw-title">2WD Robot Chassis</h4>
+                        <span class="hw-type">Structural Frame</span>
+                        <p class="hw-desc">Lightweight laser-cut acrylic chassis with pre-drilled sensor brackets, battery cradles, and motor mounting points for optimal center-of-gravity.</p>
+                        <div class="hw-specs">
+                            <span>Dual Tier Deck</span>
+                            <span>Integrated Caster Mount</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 8 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        </div>
+                        <h4 class="hw-title">High-Grip Wheels & Caster</h4>
+                        <span class="hw-type">Ground Contact</span>
+                        <p class="hw-desc">Rubber tread wheels for positive traction without wheel slip, paired with an omnidirectional front metal ball caster for zero-drag pivoting.</p>
+                        <div class="hw-specs">
+                            <span>65mm Wheel Diameter</span>
+                            <span>360° Free Ball Caster</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 9 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="6" x2="14" y2="6"/><line x1="12" y1="10" x2="12" y2="16"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+                        </div>
+                        <h4 class="hw-title">7.4V Li-Ion Battery Pack</h4>
+                        <span class="hw-type">Power Supply</span>
+                        <p class="hw-desc">Dual 18650 3.7V rechargeable cells in series providing isolated power for motors via L298N and stepped down 5V regulated rail for MCU/sensors.</p>
+                        <div class="hw-specs">
+                            <span>2S 2000mAh Capacity</span>
+                            <span>High Discharge Rate</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 10 -->
+                    <div class="hw-card">
+                        <div class="hw-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                        </div>
+                        <h4 class="hw-title">Jumper Wires & Power Rail</h4>
+                        <span class="hw-type">Interconnect & Breadboard</span>
+                        <p class="hw-desc">Dupont male-to-female and male-to-male wire harnesses, switch assembly, and common ground bus ensuring minimal voltage drop across circuits.</p>
+                        <div class="hw-specs">
+                            <span>Color Coded Wiring</span>
+                            <span>Common Ground Bus</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SOFTWARE & CONTROL -->
+        <section id="software" class="section software-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Firmware & Control Logic</span>
+                    <h2 class="section-title">Software & Control Architecture</h2>
+                    <p class="section-subtitle">Structured embedded C/C++ firmware running non-blocking deterministic cycles</p>
+                </div>
+
+                <div class="software-grid">
+                    <div class="software-features-list">
+                        <div class="sw-item">
+                            <div class="sw-num">01</div>
+                            <div class="sw-text">
+                                <h4>Arduino IDE & Embedded C/C++</h4>
+                                <p>Compiled bare-metal firmware with zero operating system overhead for deterministic microsecond execution.</p>
+                            </div>
+                        </div>
+
+                        <div class="sw-item">
+                            <div class="sw-num">02</div>
+                            <div class="sw-text">
+                                <h4>Non-Blocking State Loop</h4>
+                                <p>Replaces blocking <code>delay()</code> with <code>millis()</code> timer checks to ensure continuous sonar polling during motion.</p>
+                            </div>
+                        </div>
+
+                        <div class="sw-item">
+                            <div class="sw-num">03</div>
+                            <div class="sw-text">
+                                <h4>PWM Motor Differential Steering</h4>
+                                <p>Proportional speed adjustments to left/right motors allow smooth angular corrections along track curves.</p>
+                            </div>
+                        </div>
+
+                        <div class="sw-item">
+                            <div class="sw-num">04</div>
+                            <div class="sw-text">
+                                <h4>Ultrasonic Time-of-Flight Ranging</h4>
+                                <p>Triggers 10µs pulses on HC-SR04 pin and measures echo reflection duration converted via sound speed constant (343 m/s).</p>
+                            </div>
+                        </div>
+
+                        <div class="sw-item">
+                            <div class="sw-num">05</div>
+                            <div class="sw-text">
+                                <h4>Priority-Based Decision Arbiter</h4>
+                                <p>Evaluates safety triggers ahead of tracking routines, ensuring collision-free operation at all times.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-preview-card">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span class="dot-red"></span>
+                                <span class="dot-yellow"></span>
+                                <span class="dot-green"></span>
+                            </div>
+                            <span class="code-filename">robot_control_fsm.ino</span>
+                            <span class="code-lang">C++ / Arduino</span>
+                        </div>
+                        <pre class="code-body"><code><span class="c-comment">// Non-blocking main control loop with FSM</span>
+<span class="c-type">void</span> <span class="c-func">loop</span>() {
+  <span class="c-type">long</span> dist = <span class="c-func">readUltrasonicDistance</span>();
+
+  <span class="c-keyword">switch</span> (currentState) {
+    <span class="c-keyword">case</span> STATE_LINE_FOLLOW:
+      <span class="c-keyword">if</span> (dist &lt; OBSTACLE_THRESHOLD_CM) {
+        <span class="c-func">stopMotors</span>();
+        currentState = STATE_OBSTACLE_DETECTED;
+      } <span class="c-keyword">else</span> {
+        <span class="c-func">executeLineFollowing</span>();
+      }
+      <span class="c-keyword">break</span>;
+
+    <span class="c-keyword">case</span> STATE_OBSTACLE_DETECTED:
+      <span class="c-func">panScanSurroundings</span>();
+      currentState = STATE_STOP_SCAN;
+      <span class="c-keyword">break</span>;
+
+    <span class="c-keyword">case</span> STATE_STOP_SCAN:
+      <span class="c-type">int</span> safeDir = <span class="c-func">evaluateClearance</span>();
+      <span class="c-func">executeAvoidBypass</span>(safeDir);
+      currentState = STATE_AVOID;
+      <span class="c-keyword">break</span>;
+
+    <span class="c-keyword">case</span> STATE_AVOID:
+      <span class="c-keyword">if</span> (<span class="c-func">bypassCurveComplete</span>()) {
+        currentState = STATE_SEARCH_LINE;
+      }
+      <span class="c-keyword">break</span>;
+
+    <span class="c-keyword">case</span> STATE_SEARCH_LINE:
+      <span class="c-keyword">if</span> (<span class="c-func">irSensorDetectedLine</span>()) {
+        <span class="c-func">realignToTrack</span>();
+        currentState = STATE_LINE_FOLLOW;
+      }
+      <span class="c-keyword">break</span>;
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- APPLICATIONS -->
+        <section id="applications" class="section applications-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Real-World Deployment</span>
+                    <h2 class="section-title">Practical Applications</h2>
+                    <p class="section-subtitle">Real-world scenarios where autonomous track following combined with dynamic obstacle avoidance is crucial</p>
+                </div>
+
+                <div class="applications-grid">
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </div>
+                        <h4>Warehouse AGVs</h4>
+                        <p>Automated material transport along warehouse lanes, navigating around fallen inventory or human workers safely.</p>
+                    </div>
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <h4>Hospital Rovers</h4>
+                        <p>Sterile medicine and supply transit along designated hallway lines without colliding with patients or gurneys.</p>
+                    </div>
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </div>
+                        <h4>Industrial Automation</h4>
+                        <p>Moving parts between manufacturing workstations on factory floors with guaranteed collision avoidance.</p>
+                    </div>
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+                        </div>
+                        <h4>Hospitality & Dining</h4>
+                        <p>Automated food delivery robots navigating between kitchen tracks and customer tables in restaurants.</p>
+                    </div>
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        </div>
+                        <h4>Library & Archive Transport</h4>
+                        <p>Automated book return carts traversing aisle guidance markers while bypassing browsing visitors.</p>
+                    </div>
+
+                    <div class="app-card">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                        </div>
+                        <h4>Educational Robotics & R&D</h4>
+                        <p>Accessible open hardware platform for studying sensor fusion, control theory, and autonomous state machines.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONCLUSION SECTION -->
+        <section id="conclusion" class="section conclusion-section">
+            <div class="container">
+                <div class="conclusion-card text-center">
+                    <span class="conclusion-tag">Summary of Autonomous Cycle</span>
+                    <h2 class="conclusion-title">
+                        <span class="c-step">SENSE</span> <span class="c-arr">→</span>
+                        <span class="c-step">DECIDE</span> <span class="c-arr">→</span>
+                        <span class="c-step">AVOID</span> <span class="c-arr">→</span>
+                        <span class="c-step">REJOIN</span> <span class="c-arr">→</span>
+                        <span class="c-step">CONTINUE</span>
+                    </h2>
+                    <p class="conclusion-text">
+                        By integrating dual infrared optical tracking with a servo-actuated ultrasonic sonar transducer and a deterministic Finite State Machine, this system transforms a basic line follower into a resilient, autonomous vehicle capable of detecting unforeseen obstructions, calculating safe bypass vectors, avoiding collisions, and returning to its designated route without human intervention.
+                    </p>
+                    <div class="conclusion-actions">
+                        <a href="#simulator" class="btn btn-primary">Launch Sim 1: FSM Track</a>
+                        <a href="#arena-simulator" class="btn btn-accent-glow">Launch Sim 2: Arena Sandbox</a>
+                        <button id="back-to-top" class="btn btn-secondary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span>Back to Top</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container footer-container">
+            <div class="footer-left">
+                <div class="footer-brand">
+                    <span class="brand-title">AUTOBOT</span>
+                    <span class="brand-sub">Obstacle Avoidance & Line Follower Robot</span>
+                </div>
+                <p class="footer-copy">Autonomous Navigation Robot Using Sensor Fusion & Finite State Machine Control.</p>
+            </div>
+            <div class="footer-right">
+                <div class="footer-badge">
+                    <span class="footer-led"></span>
+                    <span>100% Client-Side Simulation &middot; Production Ready</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="script.js"></script>
+</body>
+</html>

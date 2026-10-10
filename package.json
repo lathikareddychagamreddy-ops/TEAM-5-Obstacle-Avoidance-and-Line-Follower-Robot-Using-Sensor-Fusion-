@@ -1,0 +1,23 @@
+{
+  "name": "autobot-simulator",
+  "version": "1.0.0",
+  "description": "Autonomous Navigation Robot - Obstacle Avoidance & Line Following Simulation Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build complete. Pure client-side static application ready in root directory.')\"",
+    "test": "node -c script.js"
+  },
+  "keywords": [
+    "robotics",
+    "simulator",
+    "fsm",
+    "sensor-fusion",
+    "obstacle-avoidance",
+    "line-follower",
+    "pid-controller"
+  ],
+  "author": "AUTOBOT Project",
+  "license": "MIT"
+}
